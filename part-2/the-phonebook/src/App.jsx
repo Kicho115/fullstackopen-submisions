@@ -23,14 +23,30 @@ const App = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (persons.some(p => p.name === newName || p.number === newNumber)) {
-      alert(`${newName} is already added to the phonebook`)
-      return;
-    }
-
     const personObject = {
       name: newName,
       number: newNumber,
+    }
+
+    if (persons.some(p => p.number === newNumber)) {
+      alert(`${newName} is already added to the phonebook`)
+      return;
+    } else if (persons.some(p => p.name === newName && p.number !== newNumber)) {
+      if (!window.confirm(`${newName} is already added to the phonebook, replace the old number with the new number ${newNumber}?`)) return
+
+      const existingPerson = persons.find(p => p.name === newName)
+      const updatedPerson = { ...personObject, id: existingPerson.id }
+
+      contactsService
+      .update(updatedPerson)
+      .then(contactObject => {
+        const newPersons = persons.map(p => p.id === contactObject.id ? contactObject : p)
+        setPersons(newPersons)
+        setDisplayedPersons(newPersons)
+        setNewName('')
+        setNewNumber('')
+      })
+      return
     }
 
     contactsService
