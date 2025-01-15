@@ -3,12 +3,14 @@ import contactsService from './services/contacts'
 import Contacts from './components/Contacts'
 import PersonForm from './components/PersonForm'
 import Filter from './components/Filter'
+import Notification from './components/Notification'
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [displayedPersons, setDisplayedPersons] = useState([])
+  const [notificationMessage, setNotificationMessage] = useState(null)
 
   useEffect(() => {
     
@@ -45,6 +47,12 @@ const App = () => {
         setDisplayedPersons(newPersons)
         setNewName('')
         setNewNumber('')
+        setNotificationMessage(`Updated ${contactObject.name}'s number`)
+        setTimeout(() => setNotificationMessage(null), 5000)
+      })
+      .catch(() => {
+        setNotificationMessage(`${updatedPerson.name} has already been deleted from the server`)
+        setTimeout(() => setNotificationMessage(null), 5000)
       })
       return
     }
@@ -56,6 +64,8 @@ const App = () => {
         setDisplayedPersons(persons.concat(contactObject))
         setNewName('')
         setNewNumber('')
+        setNotificationMessage(`Added ${contactObject.name}`)
+        setTimeout(() => setNotificationMessage(null), 5000)
       })
   }
 
@@ -73,7 +83,8 @@ const App = () => {
 
   return (
     <div>
-      <h2>Phonebook</h2>
+      <h1>Phonebook</h1>
+      <Notification message={notificationMessage} />
       <Filter items={persons} setDisplayedPersons={setDisplayedPersons} />
       <PersonForm handleSubmit={handleSubmit} newName={newName} setNewName={setNewName} newNumber={newNumber} setNewNumber={setNewNumber} />
       <Contacts contacts={displayedPersons} handleRemoveContact={handleRemoveContact}/>
